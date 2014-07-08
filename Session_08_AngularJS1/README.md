@@ -1,5 +1,5 @@
-﻿<a name="AngularJSIntro" />
-# Intro to AngularJS#
+﻿<a name="AngularJSIntro1" />
+# Intro to AngularJS - Part 1#
 ==========
 
 ## Overview ##
