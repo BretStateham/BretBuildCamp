@@ -36,13 +36,7 @@ This session is broken down into some exercises.  You need to complete them in o
 1. [Show a Single Station using AngularJS](#ShowSingleStation)
 1. [Show a List of Stations](#ShowStationList)
 1. [Show the Station Departures](#ShowDepartures)
-1. [Create a Service to Load Stations From The Web](#GetStations)
-
-In the next session we'll cover:
-
-1. Setting up Routes and Views
-1. Create a Service to get our Position
-1. Creating a Directive to Display the Map
+1. [Load Stations From The Web](#GetStations)
 
 ---
 
@@ -898,12 +892,284 @@ In the next session we'll cover:
 	}]);
 	````
 
-
-
 ---
 
 <a name="GetStations" />
-## Create a Service to Load Stations From The Web ##
+## Load Stations From The Web ##
 
+Ok, so far, we have been getting the station data for our **"model"** by hard coding it into our controller's scope.  That's just not how you would do it in the real world.  A more likely scenario is that you will be retrieving that data dynamically from a web services of some kind.  In subsequent sessions we'll see how to create those actual web services, but for now we can at least put a static document of actual data from a certain point in time up on the server.  We can then at least see the process for retrieving data (albeit static data) from the web.  Then later, when we have created our own web service, we can point our site to the real live data.  
+
+1.  The first thing we need to do is configure the development web server (IIS Express) that Visual Studio uses when we debug our apps.  We need to tell it that it is allowed to send .json files to the client.  In the Visual Sudio **Solution Explorer**, open the **"Web.config"" file, and add the following XML to the bottom just before the closing **&lt;/configuration&gt;** tag, then save and close **"Web.config"**:
+
+	<!-- mark:4-9 -->
+	````XML
+	  <!-- ... -->
+	  </system.web>
+
+	  <system.webServer>
+		 <!-- Allow .json files to be downloaded -->
+		 <staticContent>
+			<mimeMap fileExtension=".json" mimeType="application/json" />
+		 </staticContent>
+	  </system.webServer>
+
+	</configuration>
+	````
+
+1. Add the **"/Assets/data"** folder to the web site using the methods described previously, then open the **/data/stations.json** file to review it:
+
+	![05-010-StationsJson](images/05-010-stationsjson.png?raw=true "Stations.json Data File")
+
+	> **Note:** This file is a copy of the output from the actual **Node.JS** server you will create later.  Of course since this data was captured previously, it is a ***static*** document, and the trains have all ***left the stations*** so to speak.  However, this will server as a valid web resource we can download until we have the actual service running.  
+
+1. Lastly, we'll modify the **Controller** to get the stations data from the data file via **http** rather than hard coding a subset of data.  In the **"bartNowApp.js"** file, modify the **MainCtrl** controller code to match the following  (the entire **"bartNowApp.js"** file contents are shown):
+
+	<!-- mark:4-22 -->
+	````JavaScript
+	//Create a new Angular Module for the bartNowApp. 
+	var bartNowApp = angular.module("bartNowApp", []); 
+	 
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', '$http', function ($scope, $http) {
+
+	  $scope.stations = [];
+
+	  $scope.getStations = function () {
+		 var stationsUrl = 'data/stations.json';
+		 $http.get(stationsUrl).success(function (result) {
+			$scope.stations = result;
+		 });
+	  }
+
+	  $scope.getStations();
+
+	}]);
+	````
+
+1. Notice a few things from the code above.  First we added a dependency on the built-in Angular **$http** module, and passed it in to our controller as an argument.  
+
+	<!-- mark:2 -->
+	````JavaScript
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', '$http', function ($scope, $http) {
+
+	  // ...
+
+	}]);
+	````
+
+1. Then we initialized **$scope.stations** to an empty array.  
+
+	<!-- mark:4 -->
+	````JavaScript
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', '$http', function ($scope, $http) {
+
+	  $scope.stations = [];
+
+	  // ...
+
+	}]);
+	````
+
+
+1. Then we added the **$scope.getStations** function to retrieve stations data via **$http**:
+
+	<!-- mark:6-11 -->
+	````JavaScript
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', '$http', function ($scope, $http) {
+
+	  $scope.stations = [];
+
+	  $scope.getStations = function () {
+		 var stationsUrl = 'data/stations.json';
+		 $http.get(stationsUrl).success(function (result) {
+			$scope.stations = result;
+		 });
+	  }
+
+	  // ...
+
+	}]); 
+	````
+1.  Then lastly, we called the **$scope.getStations()** data to load the station data automatically when the controller gets created:
+
+	<!-- mark:16 -->
+	````JavaScript
+	//Create a new Angular Module for the bartNowApp. 
+	var bartNowApp = angular.module("bartNowApp", []); 
+	 
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', '$http', function ($scope, $http) {
+
+	  $scope.stations = [];
+
+	  $scope.getStations = function () {
+		 var stationsUrl = 'data/stations.json';
+		 $http.get(stationsUrl).success(function (result) {
+			$scope.stations = result;
+		 });
+	  }
+
+	  $scope.getStations();
+
+	}]);
+	````
+
+1. Finally, let's add a **loading** indicator to the view that will display when the stations are still being downloaded from the web.  Add the following to the top of the **Stations Column** in **""index.html"**
+
+	<!-- mark:3-7 -->
+	````HTML
+	<!-- Stations Column -->
+	<div class="col-xs-12 col-md-4 col-md-pull-8">
+	  <div class="text-center" ng-hide="stations">
+		 <h3>Loading Stations...</h3>
+		 <img src="../images/loader.gif" alt="" />
+	  </div>
+
+	  <div ng-repeat="station in stations">
+		 <!-- ... -->
+	  </div>
+	</div>
+	````
+1.  Now, run the site in the browser.  Notice the initial **"Loading Stations..."** display while the **/data/stations.json** data file is being retrieved:
+
+	![05-020-Loading](images/05-020-loading.png?raw=true "Loading...")
+
+1. Then, the **Stations Column** should populate with the view of the data: 
+
+	![05-030-StationsLoaded](images/05-030-stationsloaded.png?raw=true "StationsLoaded")
+
+1. Ok, here is the complete markup for the files that changed (other than th e newly added **/data/stations.json**).  First **"index.html"**
+
+	````HTML
+	<!DOCTYPE html>
+	<html ng-app="bartNowApp">
+	<head>
+	  <title>bartNow</title>
+	  <link href="css/bootstrap.css" rel="stylesheet" />
+	  <link href="css/bartNow.css" rel="stylesheet" />
+	  <script src="js/angular.js"></script>
+	  <script src="js/angular-resource.js"></script>
+	  <script src="js/bartNowApp.js"></script>
+	</head>
+	<body ng-controller="MainCtrl">
+
+	  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+		 <div class="container">
+
+			<div class="navbar-header">
+			  <!-- Logo -->
+			  <a class="navbar-brand" href="#"><img src="images/BartNowLogoWide_154x24.png" alt="" /></a>
+
+			  <!-- Hamburger Button -->
+			  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+				 <span class="sr-only">Toggle navigation</span>
+				 <span class="icon-bar"></span>
+				 <span class="icon-bar"></span>
+				 <span class="icon-bar"></span>
+			  </button>
+
+			</div>
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div id="navbar" class="collapse navbar-collapse">
+			  <ul class="nav navbar-nav">
+				 <li class="active"><a href="#/stations">Stations</a></li>
+				 <li><a href="#/trains">Trains</a></li>
+			  </ul>
+			</div>
+
+		 </div>
+	  </nav>
+
+	  <div id="mainContent" class="container">
+
+		 <div class="row">
+
+			<!-- Map Column-->
+			<div class="col-xs-12 col-md-8 col-md-push-4">
+			  <div id="mapDiv" class="map">
+				 <div class="well"><h2>Show the Map Here</h2></div>
+			  </div>
+			</div>
+
+			<!-- Stations Column -->
+			<div class="col-xs-12 col-md-4 col-md-pull-8">
+			  <div class="text-center" ng-hide="stations">
+				 <h3>Loading Stations...</h3>
+				 <img src="../images/loader.gif" alt="" />
+			  </div>
+
+			  <div ng-repeat="station in stations">
+				 <p>{{station.name}} ({{station.abbr}})</p>
+				 <div ng-repeat="train in station.etd">
+					{{train.destination}}
+					<span ng-repeat="departure in train.estimate"> | <img class="bartlinecolor" ng-src="/images/{{departure.color | lowercase}}.png" /> {{departure.minutes}}</span>
+				 </div>
+				 <hr />
+			  </div>
+			</div>
+
+		 </div>
+
+	  </div>
+
+	  <!-- Bootstrap core JavaScript
+	  ================================================== -->
+	  <!-- Placed at the end of the document so the pages load faster -->
+	  <script src="js/jquery-1.11.1.js"></script>
+	  <script src="js/bootstrap.js"></script>
+
+	</body>
+	</html>
+	````
+
+
+1. Then **"bartNowApp.js"**: 
+
+	````JavaScript
+	//Create a new Angular Module for the bartNowApp. 
+	var bartNowApp = angular.module("bartNowApp", []); 
+	 
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', '$http', function ($scope, $http) {
+
+	  $scope.stations = [];
+
+	  $scope.getStations = function () {
+		 var stationsUrl = 'data/stations.json';
+		 $http.get(stationsUrl).success(function (result) {
+			$scope.stations = result;
+		 });
+	  }
+
+	  $scope.getStations();
+
+	}]);
+	````
+
+1. And don't forget **"Web.config"**:
+
+	````XML
+	<?xml version="1.0"?>
+	<configuration>
+
+	  <system.web>
+		 <compilation debug="true" targetFramework="4.5" />
+		 <httpRuntime targetFramework="4.5" />
+	  </system.web>
+
+	  <system.webServer>
+		 <!-- Allow .json files to be downloaded -->
+		 <staticContent>
+			<mimeMap fileExtension=".json" mimeType="application/json" />
+		 </staticContent>
+	  </system.webServer>
+
+	</configuration>
+	````
 ---
+
 
