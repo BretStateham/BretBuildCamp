@@ -50,28 +50,13 @@
 
       <!-- Stations Column -->
       <div class="col-xs-12 col-md-4 col-md-pull-8">
-        <div class="well">
-          <h2>Show the Stations Here.</h2>
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Abbr</th>
-                <th>Zip</th>
-              </tr>
-            </thead>
-            <tbody>
-
-              <!-- repeat the table row for each station -->
-              <!-- in the $scope.stations array  -->
-              <tr ng-repeat="station in stations">
-                <td>{{station.name}}:</td>
-                <td>{{station.abbr}}</td>
-                <td>{{station.zipcode}}</td>
-              </tr>
-
-              </tbody>
-          </table>
+        <div ng-repeat="station in stations">
+          <p>{{station.name}} ({{station.abbr}})</p>
+          <div ng-repeat="train in station.etd">
+            {{train.destination}}
+            <span ng-repeat="departure in train.estimate"> | <img class="bartlinecolor" ng-src="/images/{{departure.color | lowercase}}.png" /> {{departure.minutes}}</span>
+          </div>
+          <hr />
         </div>
       </div>
 
