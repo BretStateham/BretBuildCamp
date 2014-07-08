@@ -55,44 +55,22 @@
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th>Property</th>
-                <th>Value</th>
+                <th>Name</th>
+                <th>Abbr</th>
+                <th>Zip</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Name:</td>
-                <td>{{station.name}}</td>
-              </tr>
-              <tr>
-                <td>Abbreviation:</td>
+
+              <!-- repeat the table row for each station -->
+              <!-- in the $scope.stations array  -->
+              <tr ng-repeat="station in stations">
+                <td>{{station.name}}:</td>
                 <td>{{station.abbr}}</td>
-              </tr>
-              <tr>
-                <td>County:</td>
-                <td>{{station.county}}</td>
-              </tr>
-              <tr>
-                <td>State:</td>
-                <td>{{station.state}}</td>
-              </tr>
-              <tr>
-                <td>Zip Code::</td>
                 <td>{{station.zipcode}}</td>
               </tr>
-              <tr>
-                <td>Latitude:</td>
-                <td>{{station.latitude}}</td>
-              </tr>
-              <tr>
-                <td>Longitude:</td>
-                <td>{{station.longitude}}</td>
-              </tr>
-              <tr>
-                <td>Map:</td>
-                <td><a href="http://www.bing.com/maps/?q={{station.latitude}},{{station.longitude}}" target="_blank">link</a></td>
-              </tr>
-            </tbody>
+
+              </tbody>
           </table>
         </div>
       </div>
