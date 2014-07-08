@@ -1,11 +1,13 @@
 ﻿<!DOCTYPE html>
-<html>
+<html ng-app="bartNowApp">
 <head>
   <title>bartNow</title>
   <link href="css/bootstrap.css" rel="stylesheet" />
-  <link href="css/bartNow.css" rel="stylesheet" />  
+  <link href="css/bartNow.css" rel="stylesheet" />
+  <script src="js/angular.js"></script>
+  <script src="js/bartNowApp.js"></script>
 </head>
-<body>
+<body ng-controller="MainCtrl">
 
   <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
@@ -48,7 +50,51 @@
 
       <!-- Stations Column -->
       <div class="col-xs-12 col-md-4 col-md-pull-8">
-        <div class="well"><h2>Show the Stations Here.</h2></div>
+        <div class="well">
+          <h2>Show the Stations Here.</h2>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Name:</td>
+                <td>{{station.name}}</td>
+              </tr>
+              <tr>
+                <td>Abbreviation:</td>
+                <td>{{station.abbr}}</td>
+              </tr>
+              <tr>
+                <td>County:</td>
+                <td>{{station.county}}</td>
+              </tr>
+              <tr>
+                <td>State:</td>
+                <td>{{station.state}}</td>
+              </tr>
+              <tr>
+                <td>Zip Code::</td>
+                <td>{{station.zipcode}}</td>
+              </tr>
+              <tr>
+                <td>Latitude:</td>
+                <td>{{station.latitude}}</td>
+              </tr>
+              <tr>
+                <td>Longitude:</td>
+                <td>{{station.longitude}}</td>
+              </tr>
+              <tr>
+                <td>Map:</td>
+                <td><a href="http://www.bing.com/maps/?q={{station.latitude}},{{station.longitude}}" target="_blank">link</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>
