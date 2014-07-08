@@ -623,7 +623,282 @@ In the next session we'll cover:
 <a name="ShowDepartures" />
 ## Show the Station Departures ##
 
-1.  We're gradually making our model more complex.  We started with just a single station, then we stepped up to an array of stations.  This time, let's add a nested array of departing trains for each station.  When we are done we'll have a model that more closely matches the data we'll retrieve dynamically from the web later.  
+1.  We're gradually making our model more complex.  We started with just a single station, then we stepped up to an array of stations.  This time, let's add a nested array of departing trains for each station.  When we are done we'll have a model that more closely matches the data we'll retrieve dynamically from the web later.  Modify the **"MainCtrl"** in **"bartNowApp.js"** with as follows (complete code for the file shown):
+
+
+	````JavaScript
+	//Create a new Angular Module for the bartNowApp. 
+	var bartNowApp = angular.module("bartNowApp", []);
+
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', function ($scope) {
+
+	  //Add a static model for a single bart station 
+	  //This time with an array of stations each with it's
+	  //own nested array of estimate times of departure for 
+	  //multiple remote stations, as welll as individual estimates
+	  //for individual trains on to those target destinations
+	  //The sample data here is trimmed significantly to help
+	  //visualize it.
+	  $scope.stations = [{
+		 name: "12th St. Oakland City Center",
+		 abbr: "12TH",
+		 etd: [
+			{
+			  destination: "24th Street",
+			  estimate: [
+				 { minutes: "25", color: "YELLOW" },
+				 { minutes: "40", color: "YELLOW" }]
+			},
+			{
+			  destination: "Fremont",
+			  estimate: [
+				 { minutes: "5", color: "ORANGE" },
+				 { minutes: "20", color: "ORANGE" }]
+			}]
+	  },
+	  {
+		 name: "16th St. Mission",
+		 abbr: "16TH",
+		 etd: [
+			{
+			  destination: "24th Street",
+			  estimate: [
+				 { minutes: "43", color: "YELLOW" },
+				 { minutes: "58", color: "YELLOW" }]
+			},
+			{
+			  destination: "Daly City",
+			  estimate: [
+				 { minutes: "3", color: "GREEN" },
+				 { minutes: "9", color: "BLUE" }]
+			}]
+	  }
+	  ];
+
+	}]);
+	````
+
+1. Next, we'll modify the view to display the new data, let's start by moving away from a table for display and start to use repeating divs instead.  Modify the **Stations Column** as follows (we won't show the entire page markup here, but we'll show it in a few steps if you need it):
+
+	<!-- mark:5-8 -->
+	````HTML
+	<!-- Stations Column -->
+	<div class="col-xs-12 col-md-4 col-md-pull-8">
+	  <div class="well">
+		 <h2>Show the Stations Here.</h2>
+		 <div ng-repeat="station in stations">
+			<p>{{station.name}} ({{station.abbr}})</p>
+			<hr />
+		 </div>
+	  </div>
+	</div>
+	````
+
+1. View the page in the browser and verify that the stations appear in repeating divs with horizontal rules between them (remember the sample data has been trimmed to to only two stations):
+
+	![04-010-RepeatingStationDivs](images/04-010-repeatingstationdivs.png?raw=true "Repeating Station Divs")
+
+1. Now, we'll augment the ***"template"** for each station to include a nested set of repeating **divs** for each possible destination:
+
+	<!-- mark:7-9 -->
+	````HTML
+	<!-- Stations Column -->
+	<div class="col-xs-12 col-md-4 col-md-pull-8">
+	  <div class="well">
+		 <h2>Show the Stations Here.</h2>
+		 <div ng-repeat="station in stations">
+			<p>{{station.name}} ({{station.abbr}})</p>
+			<div ng-repeat="train in station.etd">
+			  {{train.destination}}
+			</div>
+			<hr />
+		 </div>
+	  </div>
+	</div>
+	````
+
+1. Again, view the site in the browser.  You should now see that for each origin station, there is a list of possible destination displayed:
+
+	![04-020-StationDestinations](images/04-020-stationdestinations.png?raw=true "Station Destinations")
+
+1. And finally, for each possible destination display the estimated times of departure (in minutes) for trains to that destination along with a graphical icon indicating the bart **"line"** the train is running on (Red, Orange, Yellow, Green or Blue):
+
+	````HTML
+	<!-- Stations Column -->
+	<div class="col-xs-12 col-md-4 col-md-pull-8">
+	  <div class="well">
+		 <h2>Show the Stations Here.</h2>
+		 <div ng-repeat="station in stations">
+			<p>{{station.name}} ({{station.abbr}})</p>
+			<div ng-repeat="train in station.etd">
+			  {{train.destination}}
+			  <span ng-repeat="departure in train.estimate"> | <img class="bartlinecolor" ng-src="/images/{{departure.color | lowercase}}.png" /> {{departure.minutes}}</span>
+			</div>
+			<hr />
+		 </div>
+	  </div>
+	</div>
+	````
+1. Run the site in the browser and verify the display of the estimated depature times for multiple destinations:
+
+	![04-030-EstimatedDepartures](images/04-030-estimateddepartures.png?raw=true "Estimated Departures")
+
+1. Finally, we can get rid of the extra markup in the **Stations Column** that displays the **"Show the Stations Here"** header, as well as the **"well"** div around the stations. The **"well"** has been a handy way to visualize the column but now that we have data in it, we don't need it.  Getting rid of the **"well"** will help free up some space for smaller displays as well. 
+
+	````HTML
+	<!-- Stations Column -->
+	<div class="col-xs-12 col-md-4 col-md-pull-8">
+	  <div ng-repeat="station in stations">
+		 <p>{{station.name}} ({{station.abbr}})</p>
+		 <div ng-repeat="train in station.etd">
+			{{train.destination}}
+			<span ng-repeat="departure in train.estimate"> | <img class="bartlinecolor" ng-src="/images/{{departure.color | lowercase}}.png" /> {{departure.minutes}}</span>
+		 </div>
+		 <hr />
+	  </div>
+	</div>
+	````
+
+1. And take one more look in the browser (a much cleaner look):
+
+	![04-040-CleanedUp](images/04-040-cleanedup.png?raw=true "Cleaned Up")
+
+1. Here's the final markup for **"index.html"**:
+
+	````HTML
+	<!DOCTYPE html>
+	<html ng-app="bartNowApp">
+	<head>
+	  <title>bartNow</title>
+	  <link href="css/bootstrap.css" rel="stylesheet" />
+	  <link href="css/bartNow.css" rel="stylesheet" />
+	  <script src="js/angular.js"></script>
+	  <script src="js/bartNowApp.js"></script>
+	</head>
+	<body ng-controller="MainCtrl">
+
+	  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+		 <div class="container">
+
+			<div class="navbar-header">
+			  <!-- Logo -->
+			  <a class="navbar-brand" href="#"><img src="images/BartNowLogoWide_154x24.png" alt="" /></a>
+
+			  <!-- Hamburger Button -->
+			  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+				 <span class="sr-only">Toggle navigation</span>
+				 <span class="icon-bar"></span>
+				 <span class="icon-bar"></span>
+				 <span class="icon-bar"></span>
+			  </button>
+
+			</div>
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div id="navbar" class="collapse navbar-collapse">
+			  <ul class="nav navbar-nav">
+				 <li class="active"><a href="#/stations">Stations</a></li>
+				 <li><a href="#/trains">Trains</a></li>
+			  </ul>
+			</div>
+
+		 </div>
+	  </nav>
+
+	  <div id="mainContent" class="container">
+
+		 <div class="row">
+
+			<!-- Map Column-->
+			<div class="col-xs-12 col-md-8 col-md-push-4">
+			  <div id="mapDiv" class="map">
+				 <div class="well"><h2>Show the Map Here</h2></div>
+			  </div>
+			</div>
+
+			<!-- Stations Column -->
+			<div class="col-xs-12 col-md-4 col-md-pull-8">
+			  <div ng-repeat="station in stations">
+				 <p>{{station.name}} ({{station.abbr}})</p>
+				 <div ng-repeat="train in station.etd">
+					{{train.destination}}
+					<span ng-repeat="departure in train.estimate"> | <img class="bartlinecolor" ng-src="/images/{{departure.color | lowercase}}.png" /> {{departure.minutes}}</span>
+				 </div>
+				 <hr />
+			  </div>
+			</div>
+
+		 </div>
+
+	  </div>
+
+	  <!-- Bootstrap core JavaScript
+	  ================================================== -->
+	  <!-- Placed at the end of the document so the pages load faster -->
+	  <script src="js/jquery-1.11.1.js"></script>
+	  <script src="js/bootstrap.js"></script>
+
+	</body>
+	</html>
+	````
+
+1. And for **"bartNowApp.js"**:
+
+	````JavaScript
+	//Create a new Angular Module for the bartNowApp. 
+	var bartNowApp = angular.module("bartNowApp", []);
+
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', function ($scope) {
+
+	  //Add a static model for a single bart station 
+	  //This time with an array of stations each with it's
+	  //own nested array of estimate times of departure for 
+	  //multiple remote stations, as welll as individual estimates
+	  //for individual trains on to those target destinations
+	  //The sample data here is trimmed significantly to help
+	  //visualize it.
+	  $scope.stations = [{
+		 name: "12th St. Oakland City Center",
+		 abbr: "12TH",
+		 etd: [
+			{
+			  destination: "24th Street",
+			  estimate: [
+				 { minutes: "25", color: "YELLOW" },
+				 { minutes: "40", color: "YELLOW" }]
+			},
+			{
+			  destination: "Fremont",
+			  estimate: [
+				 { minutes: "5", color: "ORANGE" },
+				 { minutes: "20", color: "ORANGE" }]
+			}]
+	  },
+	  {
+		 name: "16th St. Mission",
+		 abbr: "16TH",
+		 etd: [
+			{
+			  destination: "24th Street",
+			  estimate: [
+				 { minutes: "43", color: "YELLOW" },
+				 { minutes: "58", color: "YELLOW" }]
+			},
+			{
+			  destination: "Daly City",
+			  estimate: [
+				 { minutes: "3", color: "GREEN" },
+				 { minutes: "9", color: "BLUE" }]
+			}]
+	  }
+	  ];
+
+	}]);
+	````
+
+
 
 ---
 
