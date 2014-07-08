@@ -34,7 +34,7 @@ This session is broken down into some exercises.  You need to complete them in o
 
 1. [Add AngularJS to the Site](#AddAngularJS)
 1. [Show a Single Station using AngularJS](#ShowSingleStation)
-1. [Show a List of Stations using AngularJS](#ShowStationList)
+1. [Show a List of Stations](#ShowStationList)
 1. [Show the Station Departures](#ShowDepartures)
 1. [Create a Service to Load Stations From The Web](#GetStations)
 
@@ -421,15 +421,214 @@ In the next session we'll cover:
 
 	![02-040-SingleStation](images/02-040-singlestation.png?raw=true "Single Station")
 
+1. In this exercise, we created:
+
+	- An **App** module: bartNowApp
+	- A **Model**: The $scope.station single station object
+	- A **Controller**: MainCtrl
+	- A **View**: the **&lt;body&gt;...&lt;/body&gt;...** element in **index.html** and the various **{{...}}** angular expressions in it.
+
 ---
 
-<a name="" />
-##  ##
+<a name="ShowStationList" />
+## Show a List of Stations ##
+
+1. In the previous exercise, we displayed a single station from our **model** (**$scope.station**) in our **view** (the **index.html** **&lt;body&gt;&lt;/body&gt;**. In this exercise, we'll modify the model to be an array of stations, then we'll display them using the awesome [**ng-repeat**](https://docs.angularjs.org/api/ng/directive/ngRepeat) directive.
+
+1. First, modify the definition of the **"MainCtrl** in **"bartNowApp.js"** to match the following: 
+
+	<!-- mark:4-16 -->
+	````JavaScript
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', function ($scope) {
+
+	  //Add a static model for a single bart station 
+	  //This time with an array of stations though, not just one
+	  $scope.stations = [
+		 { name: "12th St. Oakland City Center", abbr: "12TH", zipcode: "94612" },
+		 { name: "16th St. Mission", abbr: "16TH", zipcode: "94110" },
+		 { name: "19th St. Oakland", abbr: "19TH", zipcode: "94612" },
+		 { name: "24th St. Mission", abbr: "24TH", zipcode: "94110" },
+		 { name: "Ashby", abbr: "ASHB", zipcode: "94703" },
+		 { name: "Balboa Park", abbr: "BALB", zipcode: "94112" },
+		 { name: "Bay Fair", abbr: "BAYF", zipcode: "94578" },
+		 { name: "Castro Valley", abbr: "CAST", zipcode: "94546" },
+		 { name: "Civic Center/UN Plaza", abbr: "CIVC", zipcode: "94102" },
+		 { name: "Coliseum/Oakland Airport", abbr: "COLS", zipcode: "94621" }];
+
+	}]);
+	````
+
+	> **Note:** This changes our **model** to be an array of stations, not just a single station.  Although we are still statically defining (hard coding) the model for now.  You could say that we modified the **controller** as well, but only in that it now points to an array as a model rather than a single object. 
+
+1. Update the view by changing the **Station Columns** div where the single station was being displayed to instead display the list of stations.  We'll use a table again, but this time the each table row will show a single station, and we'll generate them dynamically using the **ng-repeat** directive: 
+
+	<!-- mark:5-24 -->
+	````HTML
+	<!-- Stations Column -->
+	<div class="col-xs-12 col-md-4 col-md-pull-8">
+	  <div class="well">
+		 <h2>Show the Stations Here.</h2>
+		 <table class="table table-bordered">
+			<thead>
+			  <tr>
+				 <th>Name</th>
+				 <th>Abbr</th>
+				 <th>Zip</th>
+			  </tr>
+			</thead>
+			<tbody>
+
+			  <!-- repeat the table row for each station -->
+			  <!-- in the $scope.stations array  -->
+			  <tr ng-repeat="station in stations">
+				 <td>{{station.name}}:</td>
+				 <td>{{station.abbr}}</td>
+				 <td>{{station.zipcode}}</td>
+			  </tr>
+
+			  </tbody>
+		 </table>
+	  </div>
+	</div>
+	````
+
+1. Ok, if you view the site in the browser now, you should see the list of stations displayed!  So cool!:
+
+	![03-010-StatoinList](images/03-010-statoinlist.png?raw=true "Station List")
+
+1. And again just in case you need it, here is the current complete markup for **"index.html"**:
+
+	````HTML
+	<!DOCTYPE html>
+	<html ng-app="bartNowApp">
+	<head>
+	  <title>bartNow</title>
+	  <link href="css/bootstrap.css" rel="stylesheet" />
+	  <link href="css/bartNow.css" rel="stylesheet" />
+	  <script src="js/angular.js"></script>
+	  <script src="js/bartNowApp.js"></script>
+	</head>
+	<body ng-controller="MainCtrl">
+
+	  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+		 <div class="container">
+
+			<div class="navbar-header">
+			  <!-- Logo -->
+			  <a class="navbar-brand" href="#"><img src="images/BartNowLogoWide_154x24.png" alt="" /></a>
+
+			  <!-- Hamburger Button -->
+			  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+				 <span class="sr-only">Toggle navigation</span>
+				 <span class="icon-bar"></span>
+				 <span class="icon-bar"></span>
+				 <span class="icon-bar"></span>
+			  </button>
+
+			</div>
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div id="navbar" class="collapse navbar-collapse">
+			  <ul class="nav navbar-nav">
+				 <li class="active"><a href="#/stations">Stations</a></li>
+				 <li><a href="#/trains">Trains</a></li>
+			  </ul>
+			</div>
+
+		 </div>
+	  </nav>
+
+	  <div id="mainContent" class="container">
+
+		 <div class="row">
+
+			<!-- Map Column-->
+			<div class="col-xs-12 col-md-8 col-md-push-4">
+			  <div id="mapDiv" class="map">
+				 <div class="well"><h2>Show the Map Here</h2></div>
+			  </div>
+			</div>
+
+			<!-- Stations Column -->
+			<div class="col-xs-12 col-md-4 col-md-pull-8">
+			  <div class="well">
+				 <h2>Show the Stations Here.</h2>
+				 <table class="table table-bordered">
+					<thead>
+					  <tr>
+						 <th>Name</th>
+						 <th>Abbr</th>
+						 <th>Zip</th>
+					  </tr>
+					</thead>
+					<tbody>
+
+					  <!-- repeat the table row for each station -->
+					  <!-- in the $scope.stations array  -->
+					  <tr ng-repeat="station in stations">
+						 <td>{{station.name}}:</td>
+						 <td>{{station.abbr}}</td>
+						 <td>{{station.zipcode}}</td>
+					  </tr>
+
+					  </tbody>
+				 </table>
+			  </div>
+			</div>
+
+		 </div>
+
+	  </div>
+
+	  <!-- Bootstrap core JavaScript
+	  ================================================== -->
+	  <!-- Placed at the end of the document so the pages load faster -->
+	  <script src="js/jquery-1.11.1.js"></script>
+	  <script src="js/bootstrap.js"></script>
+
+	</body>
+	</html>
+	````
+
+
+1. And for **"bartNowApp.js"**:
+
+	````JavaScript
+	//Create a new Angular Module for the bartNowApp. 
+	var bartNowApp = angular.module("bartNowApp", []);
+
+	//Create the MainCtrl Controller...
+	bartNowApp.controller("MainCtrl", ['$scope', function ($scope) {
+
+	  //Add a static model for a single bart station 
+	  //This time with an array of stations though, not just one
+	  $scope.stations = [
+		 { name: "12th St. Oakland City Center", abbr: "12TH", zipcode: "94612" },
+		 { name: "16th St. Mission", abbr: "16TH", zipcode: "94110" },
+		 { name: "19th St. Oakland", abbr: "19TH", zipcode: "94612" },
+		 { name: "24th St. Mission", abbr: "24TH", zipcode: "94110" },
+		 { name: "Ashby", abbr: "ASHB", zipcode: "94703" },
+		 { name: "Balboa Park", abbr: "BALB", zipcode: "94112" },
+		 { name: "Bay Fair", abbr: "BAYF", zipcode: "94578" },
+		 { name: "Castro Valley", abbr: "CAST", zipcode: "94546" },
+		 { name: "Civic Center/UN Plaza", abbr: "CIVC", zipcode: "94102" },
+		 { name: "Coliseum/Oakland Airport", abbr: "COLS", zipcode: "94621" }];
+
+	}]);
+	````
 
 ---
 
-<a name="" />
-##  ##
+<a name="ShowDepartures" />
+## Show the Station Departures ##
+
+1.  We're gradually making our model more complex.  We started with just a single station, then we stepped up to an array of stations.  This time, let's add a nested array of departing trains for each station.  When we are done we'll have a model that more closely matches the data we'll retrieve dynamically from the web later.  
+
+---
+
+<a name="GetStations" />
+## Create a Service to Load Stations From The Web ##
 
 ---
 
