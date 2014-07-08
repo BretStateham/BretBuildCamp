@@ -1,11 +1,14 @@
 ﻿<!DOCTYPE html>
-<html>
+<html ng-app="bartNowApp">
 <head>
   <title>bartNow</title>
   <link href="css/bootstrap.css" rel="stylesheet" />
-  <link href="css/bartNow.css" rel="stylesheet" />  
+  <link href="css/bartNow.css" rel="stylesheet" />
+  <script src="js/angular.js"></script>
+  <script src="js/angular-resource.js"></script>
+  <script src="js/bartNowApp.js"></script>
 </head>
-<body>
+<body ng-controller="MainCtrl">
 
   <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
@@ -48,7 +51,19 @@
 
       <!-- Stations Column -->
       <div class="col-xs-12 col-md-4 col-md-pull-8">
-        <div class="well"><h2>Show the Stations Here.</h2></div>
+        <div class="text-center" ng-hide="stations">
+          <h3>Loading Stations...</h3>
+          <img src="../images/loader.gif" alt="" />
+        </div>
+
+        <div ng-repeat="station in stations">
+          <p>{{station.name}} ({{station.abbr}})</p>
+          <div ng-repeat="train in station.etd">
+            {{train.destination}}
+            <span ng-repeat="departure in train.estimate"> | <img class="bartlinecolor" ng-src="/images/{{departure.color | lowercase}}.png" /> {{departure.minutes}}</span>
+          </div>
+          <hr />
+        </div>
       </div>
 
     </div>
